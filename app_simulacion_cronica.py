@@ -16,61 +16,111 @@ st.set_page_config(
     page_icon="🛡️"
 )
 
-# Estilo cyberpunk/dark mode
+# Estilo moderno con mejores prácticas UX 2025
 st.markdown("""
 <style>
+    /* Variables de diseño */
+    :root {
+        --primary: #00FFFF;
+        --secondary: #FFD700;
+        --danger: #FF0040;
+        --success: #00FF00;
+        --bg-dark: #0d1117;
+        --bg-card: #161b22;
+        --border-radius: 12px;
+        --shadow: 0 4px 6px rgba(0, 255, 255, 0.1);
+    }
+    
     .main {
-        background-color: #0d1117;
-        color: #00FFFF;
+        background-color: var(--bg-dark);
+        color: var(--primary);
     }
+    
+    /* Botón mejorado con hover */
     .stButton>button {
-        background-color: #FF0040;
+        background: linear-gradient(135deg, #FF0040 0%, #FF4060 100%);
         color: white;
-        font-weight: bold;
-        border: 2px solid #00FFFF;
+        font-weight: 600;
+        border: 2px solid var(--primary);
+        border-radius: var(--border-radius);
+        padding: 0.75rem 2rem;
+        transition: all 0.3s ease;
+        box-shadow: var(--shadow);
     }
+    
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(255, 0, 64, 0.3);
+        border-color: var(--secondary);
+    }
+    
+    /* Cards mejorados */
     .metric-box {
-        background-color: #161b22;
-        padding: 20px;
-        border-radius: 10px;
-        border: 2px solid #00FFFF;
-        margin: 10px 0;
+        background-color: var(--bg-card);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--primary);
+        margin: 1rem 0;
+        box-shadow: var(--shadow);
+        transition: transform 0.2s ease;
+    }
+    
+    .metric-box:hover {
+        transform: translateX(4px);
+    }
+    
+    /* Tabs modernos */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        border-radius: 8px 8px 0 0;
+        padding: 0.5rem 1rem;
+        background-color: var(--bg-card);
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: var(--primary);
+        color: var(--bg-dark);
     }
 </style>
 """, unsafe_allow_html=True)
 
+# Header con componentes nativos
 st.title("🛡️ OPERACIÓN CRÓNICA: Hackeando la Fatalidad")
+st.markdown("**v2.0** | Simulación educativa interactiva basada en Monte Carlo")
 
-# Información del autor y contexto
-st.markdown("""
-<div style='background-color: #161b22; padding: 15px; border-radius: 10px; border-left: 3px solid #00FFFF; margin-bottom: 20px;'>
-    <p style='color: #00FFFF; font-size: 0.9em; margin: 0;'>
-    <b>Presentado por:</b> Dr. Germán Gómez Vargas, Universidad del Desarrollo (Chile)<br>
-    <b>Para:</b> Estudiantes de la Corporación Universitaria San José de Sucre, Sincelejo, Colombia<br>
-    <b>Contexto:</b> Visita Académica UAJS 2025
-    </p>
-</div>
-""", unsafe_allow_html=True)
+st.markdown("---")
 
-st.markdown("""
-<div style='background-color: #161b22; padding: 20px; border-radius: 10px; border-left: 5px solid #FFD700;'>
-    <h3 style='color: #FFD700;'>🎯 ¿DE QUÉ TRATA ESTA SIMULACIÓN?</h3>
-    <p style='color: #00FFFF;'>
-    En "Crónica de una muerte anunciada" de Gabriel García Márquez, <b>todo el pueblo sabía 
-    que iban a matar a Santiago Nasar</b>, pero nadie logró avisarle a tiempo. La tragedia 
-    parecía "inevitable", pero... <b>¿realmente lo era?</b>
-    </p>
-    <p style='color: #00FF00;'>
-    <b>TU MISIÓN:</b> Modificar las características del sistema social (pensamiento crítico, 
-    adaptabilidad, capacidad de filtrar información) para que la advertencia llegue a Santiago 
-    antes que los gemelos Vicario lo ataquen.
-    </p>
-    <p style='color: #FF0040;'>
-    <b>LA LECCIÓN:</b> Lo que parecía "destino" era en realidad un <b>fallo del sistema social</b>. 
-    Con las habilidades correctas, el resultado puede cambiar radicalmente.
-    </p>
-</div>
-""", unsafe_allow_html=True)
+# Información del autor con componente nativo
+st.info("""
+👨‍🏫 **Presentado por:** Dr. Germán Gómez Vargas, Universidad del Desarrollo (Chile)  
+**Para:** Estudiantes de la Corporación Universitaria San José de Sucre, Sincelejo, Colombia  
+**Contexto:** Visita Académica UAJS 2025
+""")
+
+# Sección de misión con componentes nativos
+st.subheader("🎯 ¿DE QUÉ TRATA ESTA SIMULACIÓN?")
+
+st.info("""
+📖 **En el libro:** En "Crónica de una muerte anunciada" de Gabriel García Márquez, 
+**todo el pueblo sabía que iban a matar a Santiago Nasar**, pero nadie logró avisarle 
+a tiempo. La tragedia parecía "inevitable", pero... **¿realmente lo era?**
+""")
+
+st.success("""
+🎮 **TU MISIÓN:** Modificar las características del sistema social (pensamiento crítico, 
+adaptabilidad, capacidad de filtrar información) para que la advertencia llegue a Santiago 
+antes que los gemelos Vicario lo ataquen.
+""")
+
+st.warning("""
+💡 **LA LECCIÓN:** Lo que parecía "destino" era en realidad un **fallo del sistema social**. 
+Con las habilidades correctas, el resultado puede cambiar radicalmente.
+""")
+
+st.markdown("")
 
 # ============================================================================
 # CONTROLES DE SIMULACIÓN (SIDEBAR)
@@ -81,63 +131,59 @@ st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 🧠 PENSAMIENTO CRÍTICO")
 st.sidebar.markdown("""
-<div style='font-size: 0.85em; color: #00FFFF;'>
-¿Qué tan en serio toma la gente la información que recibe?<br>
-<b>Ejemplo del libro:</b> Muchos escucharon el rumor pero lo descartaron como 
-"habladas de borracho". <b>Bajo pensamiento crítico = ignorar señales importantes.</b>
-</div>
-""", unsafe_allow_html=True)
+¿Qué tan en serio toma la gente la información que recibe?
+
+**Ejemplo del libro:** Muchos escucharon el rumor pero lo descartaron como 
+"habladas de borracho". **Bajo pensamiento crítico = ignorar señales importantes.**
+""")
 critical_thinking = st.sidebar.slider(
     "Nivel de Pensamiento Crítico", 
     min_value=0.0, max_value=1.0, value=0.08, step=0.05,
     help="0.0 = Nadie toma en serio la información | 1.0 = Todos evalúan y actúan"
 )
-st.sidebar.markdown(f"<div style='font-size: 0.8em; color: #FFD700;'>Valor actual: {critical_thinking:.2f} {'(Libro: 0.08)' if critical_thinking == 0.08 else ''}</div>", unsafe_allow_html=True)
+st.sidebar.caption(f"Valor actual: {critical_thinking:.2f} {'(Libro: 0.08)' if critical_thinking == 0.08 else ''}")
 
 st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 🌐 ADAPTABILIDAD")
 st.sidebar.markdown("""
-<div style='font-size: 0.85em; color: #00FFFF;'>
-¿Puede la comunidad encontrar rutas alternativas cuando una falla?<br>
-<b>Ejemplo del libro:</b> Si el Padre Amador olvida avisar, ¿hay otra persona que pueda hacerlo? 
-<b>Alta adaptabilidad = múltiples caminos de comunicación.</b>
-</div>
-""", unsafe_allow_html=True)
+¿Puede la comunidad encontrar rutas alternativas cuando una falla?
+
+**Ejemplo del libro:** Si el Padre Amador olvida avisar, ¿hay otra persona que pueda hacerlo? 
+**Alta adaptabilidad = múltiples caminos de comunicación.**
+""")
 adaptability = st.sidebar.slider(
     "Nivel de Adaptabilidad", 
     min_value=0.0, max_value=1.0, value=0.15, step=0.05,
     help="0.0 = Una sola ruta de información | 1.0 = Muchas rutas alternativas"
 )
-st.sidebar.markdown(f"<div style='font-size: 0.8em; color: #FFD700;'>Valor actual: {adaptability:.2f} {'(Libro: 0.15)' if adaptability == 0.15 else ''}</div>", unsafe_allow_html=True)
+st.sidebar.caption(f"Valor actual: {adaptability:.2f} {'(Libro: 0.15)' if adaptability == 0.15 else ''}")
 
 st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 📢 RESOLUCIÓN DE PROBLEMAS")
 st.sidebar.markdown("""
-<div style='font-size: 0.85em; color: #00FFFF;'>
-¿Qué tan bien filtra la comunidad el ruido para enfocarse en lo importante?<br>
-<b>Ejemplo del libro:</b> La llegada del Obispo distrajo a todo el pueblo. El puerto estaba 
-lleno de actividad. <b>Baja resolución = información crítica se pierde en el caos.</b>
-</div>
-""", unsafe_allow_html=True)
+¿Qué tan bien filtra la comunidad el ruido para enfocarse en lo importante?
+
+**Ejemplo del libro:** La llegada del Obispo distrajo a todo el pueblo. El puerto estaba 
+lleno de actividad. **Baja resolución = información crítica se pierde en el caos.**
+""")
 problem_solving = st.sidebar.slider(
     "Capacidad de Filtrar Ruido", 
     min_value=0.0, max_value=1.0, value=0.08, step=0.05,
     help="0.0 = Caos total, información se pierde | 1.0 = Enfoque perfecto en lo crítico"
 )
-st.sidebar.markdown(f"<div style='font-size: 0.8em; color: #FFD700;'>Valor actual: {problem_solving:.2f} {'(Libro: 0.08)' if problem_solving == 0.08 else ''}</div>", unsafe_allow_html=True)
+st.sidebar.caption(f"Valor actual: {problem_solving:.2f} {'(Libro: 0.08)' if problem_solving == 0.08 else ''}")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 🎲 CONFIGURACIÓN AVANZADA")
 
-st.sidebar.markdown("""
-<div style='font-size: 0.85em; color: #00FFFF; margin-bottom: 10px;'>
-<b>¿Qué es "Monte Carlo"?</b><br>
+st.sidebar.info("""
+**¿Qué es "Monte Carlo"?**
+
 Es ejecutar la simulación muchas veces (como tirar dados repetidamente) para obtener 
-un <b>promedio estadístico</b>. Más simulaciones = resultado más confiable.
-</div>
-""", unsafe_allow_html=True)
+un **promedio estadístico**. Más simulaciones = resultado más confiable.
+""")
 
 num_simulations = st.sidebar.number_input(
     "Número de simulaciones", 
@@ -353,9 +399,9 @@ def visualize_network(G):
         elif "Gemelos" in node:
             node_colors.append('#FF0040')  # Rojo para amenaza
         elif any(key in node for key in ["Policía", "Coronel", "Padre"]):
-            node_colors.append('#00D9FF')  # Cyan para autoridades
+            node_colors.append('#185705')  # Cyan para autoridades
         else:
-            node_colors.append('#00FFFF')  # Cyan claro para civiles
+            node_colors.append("#00D9FF")  # Cyan claro para civiles
     
     # Dibujar
     nx.draw_networkx_nodes(G, pos, node_color=node_colors, 
@@ -374,8 +420,8 @@ def visualize_network(G):
     legend_elements = [
         Patch(facecolor='#FFD700', label='Santiago Nasar (Objetivo)'),
         Patch(facecolor='#FF0040', label='Gemelos Vicario (Amenaza)'),
-        Patch(facecolor='#00D9FF', label='Autoridades'),
-        Patch(facecolor='#00FFFF', label='Civiles')
+        Patch(facecolor='#185705', label='Autoridades'),
+        Patch(facecolor='#00D9FF', label='Civiles')
     ]
     ax.legend(handles=legend_elements, loc='upper left', 
              facecolor='#161b22', edgecolor='#30363d', 
@@ -390,302 +436,340 @@ def visualize_network(G):
 # INTERFAZ PRINCIPAL
 # ============================================================================
 
-if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", use_container_width=True):
-    with st.spinner("Ejecutando simulaciones... Esto puede tomar unos segundos..."):
+# Botón principal con mejor diseño
+st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
+
+if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", use_container_width=True, type="primary"):
+    # Progress bar moderno
+    progress_bar = st.progress(0)
+    status_text = st.empty()
+    
+    status_text.text("🔄 Inicializando simulación...")
+    progress_bar.progress(10)
+    
+    # Ejecutar Monte Carlo
+    results = run_monte_carlo(critical_thinking, adaptability, problem_solving, num_simulations)
+    
+    progress_bar.progress(100)
+    status_text.text("✅ Simulación completada!")
+    
+    import time
+    time.sleep(0.5)
+    progress_bar.empty()
+    status_text.empty()
         
-        # Ejecutar Monte Carlo
-        results = run_monte_carlo(critical_thinking, adaptability, problem_solving, num_simulations)
+    # ========== RESULTADOS PRINCIPALES ==========
+    st.markdown("---")
+    
+    # Header de resultados con diseño moderno
+    st.markdown("""
+    <div style='text-align: center; margin: 2rem 0;'>
+        <h2 style='background: linear-gradient(90deg, #00FFFF, #FFD700); 
+                   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                   font-size: 2rem; margin-bottom: 0.5rem;'>
+        📊 RESULTADOS DE LA SIMULACIÓN
+        </h2>
+        <p style='color: #888; font-size: 1rem;'>Análisis de {num_simulations} escenarios paralelos</p>
+    </div>
+    """.format(num_simulations=num_simulations), unsafe_allow_html=True)
+    
+    # Métricas principales con mejor diseño
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        success_rate = results["success_rate"]
+        delta_color = "normal" if success_rate > 50 else "inverse"
         
-        # ========== RESULTADOS PRINCIPALES ==========
-        st.markdown("---")
-        st.header("📊 RESULTADOS DE LA SIMULACIÓN")
-        
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            success_rate = results["success_rate"]
-            delta_color = "normal" if success_rate > 50 else "inverse"
+        # Métrica principal con componente nativo
+        st.metric(
+            label="🎯 TASA DE ÉXITO",
+            value=f"{success_rate:.1f}%",
+            delta=f"{results['successes']}/{num_simulations} simulaciones exitosas" if success_rate >= 50 else None
+        )
+    
+    with col2:
+        if results["avg_alert_time"]:
             st.metric(
-                "TASA DE ÉXITO", 
-                f"{success_rate:.1f}%",
-                delta=f"{results['successes']}/{num_simulations} simulaciones",
-                delta_color=delta_color
+                "⏱️ TIEMPO PROMEDIO DE ALERTA",
+                f"{results['avg_alert_time']:.1f} min",
+                help="Tiempo hasta que Santiago recibe el aviso"
             )
-        
-        with col2:
-            if results["avg_alert_time"]:
-                st.metric(
-                    "TIEMPO PROMEDIO DE ALERTA",
-                    f"{results['avg_alert_time']:.1f} min",
-                    delta="Tiempo hasta que Santiago recibe aviso"
-                )
-            else:
-                st.metric("TIEMPO PROMEDIO DE ALERTA", "N/A", delta="Sin alertas exitosas")
-        
-        with col3:
-            if results["avg_attack_time"]:
-                st.metric(
-                    "TIEMPO PROMEDIO DE ATAQUE",
-                    f"{results['avg_attack_time']:.1f} min",
-                    delta="Cuando los gemelos ejecutan"
-                )
-            else:
-                st.metric("TIEMPO PROMEDIO DE ATAQUE", "N/A", delta="Sin ataques")
-        
-        # ========== VEREDICTO ==========
-        st.markdown("---")
-        
-        if success_rate >= 80:
-            st.success("🎉 **ÉXITO SISTÉMICO**: Santiago se salva en la mayoría de los escenarios. La arquitectura de red es resiliente.")
-            st.balloons()
-        elif success_rate >= 50:
-            st.warning("⚠️ **ÉXITO PARCIAL**: Santiago tiene 50/50 de posibilidades. El sistema es inestable.")
-        elif success_rate >= 20:
-            st.error("❌ **FALLO PROBABLE**: Santiago muere en la mayoría de los casos. Ajusta los parámetros.")
         else:
-            st.error("💀 **FALLO SISTÉMICO TOTAL**: Replicaste las condiciones del libro. El destino está programado.")
+            st.metric("⏱️ TIEMPO PROMEDIO DE ALERTA", "N/A", help="Sin alertas exitosas")
+    
+    with col3:
+        if results["avg_attack_time"]:
+            st.metric(
+                "⚔️ TIEMPO PROMEDIO DE ATAQUE",
+                f"{results['avg_attack_time']:.1f} min",
+                help="Cuando los gemelos ejecutan su plan"
+            )
+        else:
+            st.metric("⚔️ TIEMPO PROMEDIO DE ATAQUE", "N/A", help="Sin ataques registrados")
+    
+    # ========== VEREDICTO CON COMPONENTES NATIVOS ==========
+    st.markdown("---")
+    
+    if success_rate >= 80:
+        st.markdown("# 🎉")
+        st.success("""
+        ### ÉXITO SISTÉMICO
         
+        Santiago se salva en la mayoría de los escenarios. 
+        La arquitectura de red es **resiliente** y puede propagar información crítica a tiempo.
+        """)
+        st.balloons()
+    elif success_rate >= 50:
+        st.markdown("# ⚠️")
+        st.warning("""
+        ### ÉXITO PARCIAL
+        
+        Santiago tiene 50/50 de posibilidades. El sistema es **inestable** y 
+        depende mucho del azar. Considera aumentar los parámetros.
+        """)
+    elif success_rate >= 20:
+        st.markdown("# ❌")
+        st.error("""
+        ### FALLO PROBABLE
+        
+        Santiago muere en la mayoría de los casos. El sistema tiene **fallos críticos**. 
+        Intenta ajustar los parámetros para mejorar la propagación.
+        """)
+    else:
+        st.markdown("# 💀")
+        st.error("""
+        ### FALLO SISTÉMICO TOTAL
+        
+        Replicaste las condiciones del libro. El "destino" está **programado** por 
+        un sistema social con bajo pensamiento crítico, poca adaptabilidad y mucho ruido.
+        """)
+    
+    # ========== TABS PARA ORGANIZAR INFORMACIÓN ==========
+    st.markdown("")
+    
+    tab1, tab2, tab3, tab4 = st.tabs(["📈 Análisis Detallado", "🌐 Red Social", "📊 Comparación con el Libro", "🎓 Lecciones"])
+    
+    with tab1:
         # ========== ANÁLISIS DE FALLOS ==========
         if results["failure_causes"]:
-            st.markdown("---")
-            st.subheader("🔍 ANÁLISIS DE CAUSAS DE FALLO")
+            st.markdown("### 🔍 Análisis de Causas de Fallo")
             
             failure_df = pd.DataFrame([
                 {"Causa": causa, "Frecuencia": freq}
                 for causa, freq in results["failure_causes"].items()
             ]).sort_values("Frecuencia", ascending=False)
             
-            st.dataframe(failure_df, use_container_width=True)
+            st.dataframe(failure_df, use_container_width=True, hide_index=True)
             
-            st.markdown("""
-            **Interpretación:**
-            - **Fragmentación de red**: El mensaje no encuentra rutas para propagarse (↑ Adaptabilidad)
-            - **Propagación demasiado lenta**: El mensaje avanza pero no lo suficientemente rápido (↑ Pensamiento Crítico)
-            - **Ruido/Interferencia**: El mensaje se pierde en el caos social (↑ Resolución de Problemas)
+            st.info("""
+**💡 Interpretación:**
+
+• **Fragmentación de red:** El mensaje no encuentra rutas para propagarse → ↑ Adaptabilidad  
+• **Saturación de información:** Demasiado "ruido" impide procesar datos críticos → ↑ Resolución de Problemas  
+• **Baja transmisión:** Las personas ignoran o no comparten la advertencia → ↑ Pensamiento Crítico  
+• **Propagación lenta:** El mensaje avanza pero no lo suficientemente rápido → ↑ Pensamiento Crítico  
+• **Ruido/Interferencia:** El mensaje se pierde en el caos social → ↑ Resolución de Problemas
             """)
-        
+    
+    with tab2:
         # ========== VISUALIZACIÓN DE RED ==========
         if show_network:
-            st.markdown("---")
-            st.subheader("🌐 LA RED SOCIAL DEL PUEBLO")
+            st.markdown("### 🌐 La Red Social del Pueblo")
             
             # Explicación pedagógica
-            st.markdown("""
-            <div style='background-color: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 20px;'>
-                <h4 style='color: #FFD700; margin-top: 0;'>📚 ¿Qué es una Red Social?</h4>
-                <p style='color: #00FFFF; font-size: 0.95em;'>
-                Imagina que cada persona del pueblo es un <b>punto (nodo)</b> y las relaciones 
-                entre ellos son <b>líneas (aristas)</b>. Por ejemplo, si Clotilde le habla a 
-                Cristo Bedoya, hay una línea conectándolos.
-                </p>
-                <p style='color: #00FFFF; font-size: 0.95em;'>
-                <b>🔵 Nodos (Círculos):</b> Cada personaje del libro<br>
-                <b>━━ Aristas (Líneas):</b> Quién puede comunicarse con quién<br>
-                <b>📊 Densidad:</b> Qué tan conectado está el pueblo (0.0 = aislado, 1.0 = todos conectados)
-                </p>
-                <p style='color: #00FF00; font-size: 0.95em;'>
-                <b>En esta simulación:</b> El mensaje (advertencia sobre el ataque) intenta 
-                "viajar" por estas líneas desde quien lo sabe (Clotilde) hasta Santiago. 
-                Mientras más conexiones haya, más fácil es que llegue.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+            st.info("""
+**📚 ¿Qué es una Red Social?**
+
+Imagina que cada persona del pueblo es un **punto (nodo)** y las relaciones 
+entre ellos son **líneas (aristas)**. Por ejemplo, si Clotilde le habla a 
+Cristo Bedoya, hay una línea conectándolos.
+
+🔵 **Nodos:** Cada personaje  
+━━ **Aristas:** Relaciones  
+📊 **Densidad:** Conectividad
+
+**En esta simulación:** El mensaje intenta "viajar" por estas líneas desde 
+Clotilde hasta Santiago. Mientras más conexiones, más fácil llega.
+            """)
             
             sample_network = create_network(adaptability)
             fig = visualize_network(sample_network)
             st.pyplot(fig)
             
-            # Métricas de red con explicaciones
-            st.markdown("**📊 Estadísticas de la Red:**")
+            # Métricas de red con mejor diseño
+            st.markdown("#### 📊 Estadísticas de la Red")
             metrics_col1, metrics_col2, metrics_col3 = st.columns(3)
             
             with metrics_col1:
-                st.metric("Nodos (Personajes)", len(sample_network.nodes()))
-                st.caption("Cantidad de personas en la red")
+                st.metric("👥 Nodos", len(sample_network.nodes()), help="Cantidad de personas en la red")
             with metrics_col2:
-                st.metric("Aristas (Conexiones)", len(sample_network.edges()))
-                st.caption("Cantidad de relaciones activas")
+                st.metric("🔗 Aristas", len(sample_network.edges()), help="Cantidad de relaciones activas")
             with metrics_col3:
                 density = nx.density(sample_network)
-                st.metric("Densidad", f"{density:.3f}")
-                st.caption("0.0 = Aislado | 1.0 = Todos conectados")
+                st.metric("📊 Densidad", f"{density:.3f}", help="0.0 = Aislado | 1.0 = Todos conectados")
             
-            st.markdown("""
-            <div style='background-color: #0d1117; padding: 10px; border-radius: 5px; border-left: 3px solid #00FFFF; margin-top: 10px;'>
-                <p style='color: #00FFFF; font-size: 0.85em; margin: 0;'>
-                💡 <b>Observa:</b> Si aumentas la <b>Adaptabilidad</b> (slider de la izquierda) 
-                y vuelves a ejecutar, verás más líneas conectando personajes. Esto representa 
-                que el pueblo tiene más "canales de comunicación" activos.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-        
+            st.info("💡 **Tip:** Si aumentas la **Adaptabilidad** y vuelves a ejecutar, verás más conexiones entre personajes.")
+        else:
+            st.info("👆 Activa 'Mostrar visualización de red' en el sidebar para ver el grafo")
+    
+    with tab3:
         # ========== COMPARACIÓN CON LIBRO ==========
-        st.markdown("---")
-        st.subheader("📖 COMPARACIÓN CON EL LIBRO ORIGINAL")
+        st.markdown("### 📖 Comparación con el Libro Original")
         
-        st.markdown("""
-        <div style='background-color: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 15px;'>
-            <p style='color: #00FFFF; font-size: 0.9em; margin: 0;'>
-            <b>¿Por qué los resultados varían si uso los mismos parámetros del libro?</b><br>
-            Porque esta es una simulación <b>probabilística</b> (como el clima o el tráfico). 
-            Cada vez que ejecutas, el mensaje toma rutas ligeramente diferentes. Lo importante 
-            es el <b>promedio</b> de muchas simulaciones, no una sola corrida.
-            </p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.warning("""
+**❓ ¿Por qué los resultados varían con los mismos parámetros?**
+
+Porque esta es una simulación **probabilística** (como el clima). 
+Cada ejecución, el mensaje toma rutas diferentes. Lo importante es el **promedio** 
+de muchas simulaciones, no una sola.
+        """)
         
-        # Valores históricos (calibrados para reflejar la tragedia del libro)
-        historical_results = run_monte_carlo(0.08, 0.15, 0.08, 100)
+        # Valores históricos (calibrados)
+        with st.spinner("Calculando escenario del libro..."):
+            historical_results = run_monte_carlo(0.08, 0.15, 0.08, 100)
         
         comparison_df = pd.DataFrame({
-            "Escenario": ["Tu Simulación", "Libro Original (Valores Históricos)"],
+            "Escenario": ["Tu Simulación", "Libro Original"],
             "Tasa de Éxito": [f"{results['success_rate']:.1f}%", f"{historical_results['success_rate']:.1f}%"],
             "Pensamiento Crítico": [f"{critical_thinking:.2f}", "0.08"],
             "Adaptabilidad": [f"{adaptability:.2f}", "0.15"],
             "Resolución de Problemas": [f"{problem_solving:.2f}", "0.08"]
         })
         
-        st.dataframe(comparison_df, use_container_width=True)
+        st.dataframe(comparison_df, use_container_width=True, hide_index=True)
         
         improvement = results['success_rate'] - historical_results['success_rate']
         
+        col_interp1, col_interp2 = st.columns([3, 1])
+        with col_interp1:
+            st.markdown(f"""
+            <div style='background-color: rgba(0, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-top: 1rem;'>
+                <p style='color: #FFD700; font-size: 0.95em; margin: 0; line-height: 1.6;'>
+                <b>💡 Interpretación:</b> El libro tenía parámetros muy bajos (0.08, 0.15, 0.08). 
+                Con estos valores, Santiago se salva solo en ~{historical_results['success_rate']:.0f}% de los casos. 
+                <b>La tragedia no era destino, era estadística.</b>
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with col_interp2:
+            if improvement > 10:
+                st.success(f"🎉 +{improvement:.1f}%")
+            elif improvement > 0:
+                st.info(f"✅ +{improvement:.1f}%")
+            elif improvement < -10:
+                st.error(f"❌ {improvement:.1f}%")
+            else:
+                st.warning("➡️ Similar")
+    
+    with tab4:
+        # ========== LECCIONES EDUCATIVAS ==========
+        st.markdown("### 🎓 Lecciones para Todas las Carreras")
+        
         st.markdown("""
-        <div style='background-color: #0d1117; padding: 10px; border-radius: 5px; border-left: 3px solid #FFD700; margin-top: 15px;'>
-            <p style='color: #FFD700; font-size: 0.9em; margin: 0;'>
-            <b>💡 Interpretación:</b> El libro tenía pensamiento crítico bajo (0.2), poca 
-            adaptabilidad (0.3) y mucho ruido (0.1). Con estos valores, Santiago se salva 
-            solo en ~{:.0f}% de los casos. <b>La tragedia no era destino, era estadística.</b>
+        <div style='background-color: rgba(0, 255, 255, 0.05); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;'>
+            <p style='color: #00FFFF; font-size: 0.95em; margin: 0; line-height: 1.6;'>
+            Esta simulación es relevante para <b>CUALQUIER carrera</b>: Derecho, Administración, 
+            Trabajo Social, Ingeniería, Salud, Comunicación, etc. Todos trabajamos con 
+            <b>información</b>, <b>redes</b> y <b>decisiones</b>.
             </p>
         </div>
-        """.format(historical_results['success_rate']), unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
         
-        if improvement > 10:
-            st.success(f"🎉 **¡Lograste mejorar +{improvement:.1f}%!** Cambiaste el destino de Santiago.")
-        elif improvement > 0:
-            st.info(f"✅ **Mejora moderada de +{improvement:.1f}%**. Vas por buen camino.")
-        elif improvement < -10:
-            st.error(f"❌ **Empeoraste {abs(improvement):.1f}%**. Estos parámetros hacen la situación peor.")
-        else:
-            st.warning("➡️ Resultados similares al libro. Prueba cambiar más los parámetros.")
+        # Crear sub-tabs dentro de tab4
+        lesson_tab1, lesson_tab2, lesson_tab3, lesson_tab4 = st.tabs([
+            "🧠 Pensamiento Crítico",
+            "🌐 Adaptabilidad",
+            "🎯 Resolución de Problemas",
+            "💡 Destino vs Diseño"
+        ])
+        
+        with lesson_tab1:
+            st.markdown("""
+            #### El Pensamiento Crítico Salva Vidas
+            
+            **En el libro:** Muchos escucharon el rumor pero lo descartaron:
+            - *"Son habladas de borracho"* ❌
+            - *"No es asunto mío"* ❌  
+            - *"Seguro es mentira"* ❌
+            
+            **Aplicaciones en tu carrera:**
+            
+            - **Derecho:** ¿Evalúas críticamente las pruebas o te dejas llevar por prejuicios?
+            - **Administración:** ¿Analizas datos antes de decidir o sigues "la intuición"?
+            - **Salud:** ¿Verificas síntomas o asumes que "no es nada grave"?
+            - **Comunicación:** ¿Chequeas fuentes antes de compartir información?
+            - **Ingeniería:** ¿Ignoras alertas del sistema porque "siempre hay falsas alarmas"?
+            
+            **Lección:** Un sistema (o persona) sin pensamiento crítico **no diferencia lo importante de lo trivial**.
+            """)
+        
+        with lesson_tab2:
+            st.markdown("""
+            #### Tener un Plan B (y C, y D)
+            
+            **En el libro:** La información siguió rutas rígidas:
+            - Clotilde → Padre Amador → Madre → ❌ (falló)
+            - Cristo Bedoya → Buscó a Santiago → ❌ (no lo encontró)
+            
+            **Aplicaciones en tu carrera:**
+            
+            - **Derecho:** Si un testigo clave falla, ¿tienes evidencia alternativa?
+            - **Administración:** Si un proveedor falla, ¿tienes respaldo?
+            - **Salud:** Si un especialista no está, ¿hay otro para emergencias?
+            - **Trabajo Social:** Si un recurso cierra, ¿conoces alternativas?
+            - **Ingeniería:** Si un servidor cae, ¿hay redundancia?
+            
+            **Lección:** Los sistemas resilientes tienen **múltiples caminos** para lograr el objetivo.
+            """)
+        
+        with lesson_tab3:
+            st.markdown("""
+            #### Filtrar el Ruido
+            
+            **En el libro:** Había demasiadas distracciones:
+            - 🚢 Llegada del Obispo (todo el pueblo al puerto)
+            - 🍺 Resaca después de la boda
+            - 📢 Puerto lleno de ruido
+            
+            **Aplicaciones en tu carrera:**
+            
+            - **Derecho:** En 500 páginas de evidencia, ¿identificas lo clave?
+            - **Administración:** Con 50 emails, ¿priorizas lo urgente vs. importante?
+            - **Salud:** En emergencia con múltiples pacientes, ¿triage efectivo?
+            - **Comunicación:** En redes sociales, ¿qué merece atención?
+            - **Psicología:** Con múltiples síntomas, ¿cuál es el diagnóstico principal?
+            
+            **Lección:** La capacidad de **enfocarse en lo crítico** y filtrar lo irrelevante es tan importante como tener la información.
+            """)
+        
+        with lesson_tab4:
+            st.markdown("""
+            #### El "Destino" Era un Problema de Diseño
+            
+            **La gran revelación:** García Márquez escribió sobre inevitabilidad, pero esta 
+            simulación demuestra que con las habilidades correctas, Santiago **podría haberse salvado**.
+            
+            **Esto aplica a problemas modernos reales:**
+            
+            - **Cambio climático:** ¿Es "inevitable" o es falta de acción colectiva?
+            - **Pobreza:** ¿Es "destino" o son sistemas mal diseñados?
+            - **Corrupción:** ¿Es "inevitable" o falta transparencia y pensamiento crítico?
+            - **Desinformación:** ¿Es "imposible de detener" o falta educación mediática?
+            - **Desigualdad:** ¿Es "natural" o son políticas deficientes?
+            
+            **Lección Final:** Lo que parece "destino inevitable" muchas veces es un **problema solucionable** si desarrollamos:
+            
+            1. ✅ **Pensamiento crítico** (evaluar información)
+            2. ✅ **Adaptabilidad** (crear soluciones alternativas)
+            3. ✅ **Resolución de problemas** (enfocarse en lo importante)
+            """)
 
 # ============================================================================
-# SECCIÓN EDUCATIVA
+# SECCIÓN DE DETALLES TÉCNICOS (Opcional)
 # ============================================================================
 
 st.markdown("---")
-st.header("🎓 LECCIONES PARA TODAS LAS CARRERAS")
-
-st.markdown("""
-<div style='background-color: #161b22; padding: 15px; border-radius: 10px; margin-bottom: 15px;'>
-    <p style='color: #00FFFF; font-size: 0.95em;'>
-    <b>Esta simulación es relevante para CUALQUIER carrera:</b> Derecho, Administración, 
-    Trabajo Social, Ingeniería, Salud, Comunicación Social, etc. Todos trabajamos con 
-    <b>información</b>, <b>redes de personas</b> y <b>toma de decisiones</b>.
-    </p>
-</div>
-""", unsafe_allow_html=True)
-
-with st.expander("💡 ¿Qué aprendemos de esta simulación?"):
-    st.markdown("""
-    ### 1. **El Pensamiento Crítico Salva Vidas (Literalmente)**
-    
-    **En el libro:** Muchos escucharon el rumor pero lo descartaron:
-    - *"Son habladas de borracho"* ❌
-    - *"No es asunto mío"* ❌
-    - *"Seguro es mentira"* ❌
-    
-    **Aplicaciones en tu carrera:**
-    
-    - **Derecho:** ¿Evalúas críticamente las pruebas o te dejas llevar por prejuicios?
-    - **Administración:** ¿Analizas datos antes de decidir o sigues "la intuición"?
-    - **Salud:** ¿Verificas síntomas o asumes que "no es nada grave"?
-    - **Comunicación:** ¿Chequeas fuentes antes de compartir información?
-    - **Ingeniería:** ¿Ignoras alertas del sistema porque "siempre hay falsas alarmas"?
-    
-    **Lección:** Un sistema (o persona) sin pensamiento crítico **no diferencia lo importante de lo trivial**. En la simulación, subir este parámetro aumenta dramáticamente la probabilidad de éxito.
-    
-    ---
-    
-    ### 2. **Adaptabilidad = Tener un Plan B (y C, y D)**
-    
-    **En el libro:** La información siguió rutas rígidas:
-    - Clotilde → Padre Amador → Madre de Santiago → ❌ (no avisó)
-    - Cristo Bedoya → Buscó a Santiago → ❌ (no lo encontró)
-    
-    Si hubiera existido una ruta directa Clotilde → Santiago, la historia cambiaría.
-    
-    **Aplicaciones en tu carrera:**
-    
-    - **Derecho:** Si un testigo clave falla, ¿tienes evidencia alternativa?
-    - **Administración:** Si un proveedor falla, ¿tienes respaldo?
-    - **Salud:** Si un especialista no está disponible, ¿hay otro que pueda atender la emergencia?
-    - **Trabajo Social:** Si un recurso comunitario cierra, ¿conoces alternativas?
-    - **Ingeniería:** Si un servidor cae, ¿hay redundancia?
-    
-    **Lección:** Los sistemas resilientes tienen **múltiples caminos** para lograr el objetivo. No dependas de una sola ruta.
-    
-    ---
-    
-    ### 3. **Resolución de Problemas = Filtrar el Ruido**
-    
-    **En el libro:** Había demasiadas distracciones:
-    - 🚢 La llegada del Obispo (todo el pueblo fue al puerto)
-    - 🍺 La resaca después de la boda
-    - 📢 El puerto lleno de ruido y actividad
-    
-    La información crítica ("van a matar a Santiago") se perdió en el caos.
-    
-    **Aplicaciones en tu carrera:**
-    
-    - **Derecho:** En un juicio con 500 páginas de evidencia, ¿identificas lo clave?
-    - **Administración:** Con 50 emails al día, ¿priorizas lo urgente vs. lo importante?
-    - **Salud:** En una emergencia con múltiples pacientes, ¿triage efectivo?
-    - **Comunicación:** En redes sociales llenas de contenido, ¿qué merece atención?
-    - **Psicología:** Con múltiples síntomas, ¿cuál es el diagnóstico principal?
-    
-    **Lección:** La capacidad de **enfocarse en lo crítico** y filtrar lo irrelevante es tan importante como tener la información. El ruido mata la señal.
-    
-    ---
-    
-    ### 4. **El "Destino" Era un Problema de Diseño**
-    
-    **La gran revelación:** García Márquez escribió sobre la inevitabilidad, pero esta 
-    simulación demuestra que con las habilidades correctas, Santiago **podría haberse salvado**.
-    
-    **Esto aplica a problemas modernos reales:**
-    
-    - **Cambio climático:** ¿Es "inevitable" o es falta de acción colectiva?
-    - **Pobreza:** ¿Es "destino" o son sistemas sociales mal diseñados?
-    - **Corrupción:** ¿Es "inevitable" o es falta de transparencia y pensamiento crítico?
-    - **Desinformación:** ¿Es "imposible de detener" o falta educación mediática?
-    - **Desigualdad:** ¿Es "natural" o son políticas públicas deficientes?
-    
-    **Lección Final:** Lo que parece "destino inevitable" muchas veces es un **problema solucionable** si desarrollamos:
-    
-    1. ✅ **Pensamiento crítico** (evaluar información)
-    2. ✅ **Adaptabilidad** (crear soluciones alternativas)
-    3. ✅ **Resolución de problemas** (enfocarse en lo importante)
-    
-    ---
-    
-    ### 🚀 Desafíos para Practicar
-    
-    **Desafío 1 - Análisis Individual:**
-    - Fija dos parámetros en 0.2 y varía el tercero de 0.2 a 0.8
-    - ¿Cuál habilidad tiene mayor impacto individual?
-    - ¿Qué implica esto para tu desarrollo profesional?
-    
-    **Desafío 2 - Optimización con Restricciones:**
-    - Imagina que solo tienes 2.0 puntos para distribuir (ej: 0.7 + 0.7 + 0.6 = 2.0)
-    - Encuentra la distribución que maximice la tasa de éxito
-    - ¿Qué te dice esto sobre priorización de recursos limitados?
-    
-    **Desafío 3 - Pensamiento Crítico Aplicado:**
-    - Identifica un "destino inevitable" en tu comunidad (problema social recurrente)
-    - ¿Cuál de las tres habilidades falta más?
-    - ¿Qué cambio concreto podrías implementar?
-    """)
 
 with st.expander("🔬 Detalles Técnicos (Para Curiosos)"):
     st.markdown("""
