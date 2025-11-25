@@ -830,9 +830,19 @@ with st.expander("🔬 Detalles Técnicos (Para Curiosos)"):
     1. γ = 1 - γ⁻¹ = 1 - 0.08 = 0.92 (nivel de ruido)
     2. Numerador = α × (1 + β) = 0.08 × 1.15 = 0.092
     3. Denominador = 1 + γ = 1 + 0.92 = 1.92
-    4. Probabilidad = 0.092 / 1.92 ≈ **4.8%**
+    4. **Probabilidad por transmisión individual** = 0.092 / 1.92 ≈ **4.8%**
     
-    Por eso Santiago muere en ~95% de los casos con esos valores históricos.
+    **¿Por qué la tasa de éxito final es ~15-20%?**
+    
+    Porque en la simulación hay **múltiples intentos** durante 15 minutos:
+    - Cada minuto, todos los nodos informados intentan transmitir a sus vecinos
+    - Con β=0.15, hay ~10-15 conexiones activas en la red
+    - Aunque cada intento tiene solo 4.8% de éxito, la **probabilidad acumulada** sube
+    
+    **Analogía:** Es como lanzar una moneda trucada (4.8% de cara) 15 veces. 
+    La probabilidad de obtener al menos una cara es mucho mayor que 4.8%.
+    
+    Por eso Santiago muere en ~80-85% de los casos con esos valores históricos.
     
     ---
     
