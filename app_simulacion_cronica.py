@@ -388,8 +388,8 @@ def visualize_network(G):
     fig, ax = plt.subplots(figsize=(12, 8), facecolor='#0d1117')
     ax.set_facecolor('#0d1117')
     
-    # Layout
-    pos = nx.spring_layout(G, k=1.5, iterations=50, seed=42)
+    # Layout con más espacio entre nodos
+    pos = nx.spring_layout(G, k=2.0, iterations=50, seed=42)
     
     # Colores por tipo de nodo
     node_colors = []
@@ -399,15 +399,43 @@ def visualize_network(G):
         elif "Gemelos" in node:
             node_colors.append('#FF0040')  # Rojo para amenaza
         elif any(key in node for key in ["Policía", "Coronel", "Padre"]):
-            node_colors.append('#185705')  # Cyan para autoridades
+            node_colors.append('#00FF00')  # Verde para autoridades
         else:
             node_colors.append("#00D9FF")  # Cyan claro para civiles
     
-    # Dibujar
+    # Calcular grosor de aristas basado en centralidad
+    # Las conexiones más "importantes" serán más gruesas
+    edge_betweenness = nx.edge_betweenness_centrality(G)
+    
+    # Normalizar valores para grosor (mínimo 2, máximo 8)
+    max_betweenness = max(edge_betweenness.values()) if edge_betweenness else 1
+    edge_widths = []
+    edge_colors = []
+    
+    for edge in G.edges():
+        # Grosor basado en betweenness (qué tan crítica es la conexión)
+        betweenness = edge_betweenness.get(edge, edge_betweenness.get((edge[1], edge[0]), 0))
+        width = 2 + (betweenness / max_betweenness) * 6  # Rango: 2-8
+        edge_widths.append(width)
+        
+        # Color más brillante para conexiones críticas a Santiago
+        if "SANTIAGO NASAR" in edge:
+            edge_colors.append('#FFD700')  # Dorado para conexiones a Santiago
+        elif "Clotilde" in edge[0] or "Clotilde" in edge[1]:
+            edge_colors.append('#00FFFF')  # Cyan para conexiones desde Clotilde (fuente)
+        else:
+            edge_colors.append('#58a6ff')  # Azul más visible para otras conexiones
+    
+    # Dibujar aristas con grosor variable y colores
+    nx.draw_networkx_edges(G, pos, edge_color=edge_colors, 
+                          width=edge_widths, alpha=0.8, ax=ax)
+    
+    # Dibujar nodos con borde para mejor contraste
     nx.draw_networkx_nodes(G, pos, node_color=node_colors, 
-                          node_size=2000, alpha=0.9, ax=ax)
-    nx.draw_networkx_edges(G, pos, edge_color='#30363d', 
-                          width=2, alpha=0.6, ax=ax)
+                          node_size=2000, alpha=0.95, 
+                          edgecolors='white', linewidths=2, ax=ax)
+    
+    # Labels con mejor contraste
     nx.draw_networkx_labels(G, pos, font_size=8, font_color='white', 
                            font_weight='bold', ax=ax)
     
@@ -420,7 +448,7 @@ def visualize_network(G):
     legend_elements = [
         Patch(facecolor='#FFD700', label='Santiago Nasar (Objetivo)'),
         Patch(facecolor='#FF0040', label='Gemelos Vicario (Amenaza)'),
-        Patch(facecolor='#185705', label='Autoridades'),
+        Patch(facecolor='#00FF00', label='Autoridades'),
         Patch(facecolor='#00D9FF', label='Civiles')
     ]
     ax.legend(handles=legend_elements, loc='upper left', 
