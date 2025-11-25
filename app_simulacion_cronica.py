@@ -822,13 +822,17 @@ with st.expander("🔬 Detalles Técnicos (Para Curiosos)"):
     - Si hay **ruido alto** (mucha distracción), la probabilidad baja
     
     **Ejemplo con números reales del libro:**
-    - Pensamiento Crítico = 0.2 (muy bajo)
-    - Adaptabilidad = 0.3 (baja)
-    - Ruido = 0.9 (muy alto porque γ⁻¹ = 0.1)
+    - Pensamiento Crítico (α) = 0.08 
+    - Adaptabilidad (β) = 0.15
+    - Reducción de Ruido (γ⁻¹) = 0.08
     
-    Probabilidad = (0.2 × 1.3) / (1 + 0.9) = 0.26 / 1.9 ≈ **13.7%**
+    **Cálculo paso a paso:**
+    1. γ = 1 - γ⁻¹ = 1 - 0.08 = 0.92 (nivel de ruido)
+    2. Numerador = α × (1 + β) = 0.08 × 1.15 = 0.092
+    3. Denominador = 1 + γ = 1 + 0.92 = 1.92
+    4. Probabilidad = 0.092 / 1.92 ≈ **4.8%**
     
-    Por eso Santiago muere en ~85% de los casos con esos valores.
+    Por eso Santiago muere en ~95% de los casos con esos valores históricos.
     
     ---
     
