@@ -6,6 +6,45 @@ import pandas as pd
 from collections import defaultdict
 import numpy as np
 
+from modelo import (
+    CAUSA_DESINFORMADO,
+    CAUSA_FRAGMENTADA,
+    CAUSA_LENTO,
+    CAUSA_RUMOR_GANA,
+    create_network,
+    run_monte_carlo,
+    simulate_single_run,
+)
+
+# ============================================================================
+# INSTITUCIÓN ANFITRIONA
+# ============================================================================
+# Se elige con un parámetro de URL, para no tener que editar el código en cada
+# charla:  https://salvando-santiago.streamlit.app/?uni=americana
+INSTITUCIONES = {
+    "americana": {
+        "nombre": "Corporación Universitaria Americana",
+        "lugar": "Barranquilla, Medellín y Montería, Colombia",
+        "contexto": "Visita Académica 2026",
+    },
+    "uajs": {
+        "nombre": "Corporación Universitaria Antonio José de Sucre",
+        "lugar": "Sincelejo, Colombia",
+        "contexto": "Visita Académica UAJS 2025",
+    },
+    "generica": {
+        "nombre": "",
+        "lugar": "",
+        "contexto": "",
+    },
+}
+
+try:
+    _uni_key = st.query_params.get("uni", "americana")
+except Exception:  # Streamlit antiguo
+    _uni_key = "americana"
+UNI = INSTITUCIONES.get(str(_uni_key).lower(), INSTITUCIONES["americana"])
+
 # ============================================================================
 # CONFIGURACIÓN DE LA APP
 # ============================================================================
@@ -89,16 +128,21 @@ st.markdown("""
 
 # Header con componentes nativos
 st.title("🛡️ OPERACIÓN CRÓNICA: Hackeando la Fatalidad")
-st.markdown("**v2.0** | Simulación educativa interactiva basada en Monte Carlo")
+st.markdown("**v3.0** | Simulación educativa interactiva basada en Monte Carlo")
 
 st.markdown("---")
 
 # Información del autor con componente nativo
-st.info("""
-👨‍🏫 **Presentado por:** Dr. Germán Gómez Vargas, Universidad del Desarrollo (Chile)  
-**Para:** Estudiantes de la Corporación Universitaria San José de Sucre, Sincelejo, Colombia  
-**Contexto:** Visita Académica UAJS 2025
-""")
+_para = (
+    f"**Para:** Estudiantes de la {UNI['nombre']}, {UNI['lugar']}  \n"
+    f"**Contexto:** {UNI['contexto']}"
+    if UNI["nombre"]
+    else ""
+)
+st.info(
+    "👨‍🏫 **Presentado por:** Dr. Germán Gómez Vargas, "
+    "Instituto de Data Science, Universidad del Desarrollo (Chile)  \n" + _para
+)
 
 # Sección de misión con componentes nativos
 st.subheader("🎯 ¿DE QUÉ TRATA ESTA SIMULACIÓN?")
@@ -131,15 +175,20 @@ st.sidebar.markdown("---")
 
 st.sidebar.markdown("### 🧠 PENSAMIENTO CRÍTICO")
 st.sidebar.markdown("""
-¿Qué tan en serio toma la gente la información que recibe?
+Por el pueblo circulan **dos mensajes**: la advertencia verdadera y el rumor de que
+"son habladas de borracho, ya le avisaron". Esta variable mide cuánta gente
+**verifica antes de repetir**.
 
-**Ejemplo del libro:** Muchos escucharon el rumor pero lo descartaron como 
-"habladas de borracho". **Bajo pensamiento crítico = ignorar señales importantes.**
+Quien verifica se queda con la advertencia y descarta el rumor. Quien no verifica
+se queda con lo primero que oyó, sea verdad o mentira.
+
+**En 2026 esto tiene nombre técnico:** un agente de IA que ejecuta una instrucción
+escondida en un correo está fallando exactamente aquí.
 """)
 critical_thinking = st.sidebar.slider(
-    "Nivel de Pensamiento Crítico", 
+    "Nivel de Pensamiento Crítico",
     min_value=0.0, max_value=1.0, value=0.08, step=0.05,
-    help="0.0 = Nadie toma en serio la información | 1.0 = Todos evalúan y actúan"
+    help="0.0 = nadie verifica, se cree lo primero que llega | 1.0 = todos verifican antes de repetir"
 )
 st.sidebar.caption(f"Valor actual: {critical_thinking:.2f} {'(Libro: 0.08)' if critical_thinking == 0.08 else ''}")
 
@@ -193,6 +242,14 @@ num_simulations = st.sidebar.number_input(
 
 show_network = st.sidebar.checkbox("Mostrar la red social de personajes", value=True)
 
+modo_demo = st.sidebar.checkbox(
+    "Modo demo (resultado reproducible)",
+    value=False,
+    help="Fija la semilla aleatoria para que la cifra proyectada no cambie entre corridas. "
+         "Útil cuando el número tiene que coincidir con una diapositiva.",
+)
+semilla = 2026 if modo_demo else None
+
 st.sidebar.markdown("---")
 st.sidebar.markdown("""
 <div style='font-size: 0.85em; background-color: #0d1117; padding: 10px; border-radius: 5px; border: 1px solid #FF0040;'>
@@ -220,164 +277,8 @@ Resolución de Problemas = 0.08<br>
 # ============================================================================
 # MOTOR DE SIMULACIÓN
 # ============================================================================
-
-def create_network(beta):
-    """Construye el grafo social con rutas base + adaptativas"""
-    G = nx.Graph()
-    
-    # Personajes clave
-    nodes = [
-        "Gemelos Vicario",
-        "Clotilde Armenta",
-        "Leandro Pornoy (Policía)",
-        "Coronel Lázaro Aponte",
-        "Padre Carmen Amador",
-        "Cristo Bedoya",
-        "Plácida Linero (Madre)",
-        "Victoria Guzmán (Cocinera)",
-        "SANTIAGO NASAR"
-    ]
-    
-    G.add_nodes_from(nodes)
-    
-    # Conexiones del libro (estructura base)
-    base_edges = [
-        ("Gemelos Vicario", "Clotilde Armenta"),
-        ("Clotilde Armenta", "Leandro Pornoy (Policía)"),
-        ("Clotilde Armenta", "Padre Carmen Amador"),
-        ("Clotilde Armenta", "Cristo Bedoya"),
-        ("Leandro Pornoy (Policía)", "Coronel Lázaro Aponte"),
-        ("Padre Carmen Amador", "Plácida Linero (Madre)"),
-        ("Cristo Bedoya", "SANTIAGO NASAR"),
-        ("Plácida Linero (Madre)", "SANTIAGO NASAR"),
-        ("Victoria Guzmán (Cocinera)", "SANTIAGO NASAR")
-    ]
-    
-    G.add_edges_from(base_edges)
-    
-    # Rutas alternativas que se activan con alta adaptabilidad
-    potential_edges = [
-        ("Clotilde Armenta", "SANTIAGO NASAR"),  # Ruta directa
-        ("Leandro Pornoy (Policía)", "Cristo Bedoya"),  # Bypass del cura
-        ("Coronel Lázaro Aponte", "Plácida Linero (Madre)"),  # Autoridad a madre
-        ("Coronel Lázaro Aponte", "SANTIAGO NASAR"),  # Autoridad directa
-        ("Padre Carmen Amador", "Cristo Bedoya"),  # Red eclesiástica
-        ("Victoria Guzmán (Cocinera)", "Plácida Linero (Madre)")  # Personal doméstico
-    ]
-    
-    # Activar rutas según adaptabilidad
-    for edge in potential_edges:
-        if random.random() < beta:
-            G.add_edge(*edge)
-    
-    return G
-
-def simulate_single_run(alpha, beta, gamma_inv, max_minutes=15):
-    """
-    Ejecuta una simulación Monte Carlo
-    
-    Returns:
-        success (bool): ¿Santiago fue alertado?
-        time_alerted (int): Minuto en que fue alertado (o -1)
-        time_attack (int): Minuto en que los gemelos atacan
-        log (list): Registro de eventos
-    """
-    G = create_network(beta)
-    
-    # Estado inicial
-    informed_nodes = {"Clotilde Armenta"}  # Primera en saber
-    santiago_alerted = False
-    time_alerted = -1
-    
-    # Progreso de los gemelos (%)
-    vicario_progress = 0
-    # Velocidad base: 100% en 10 minutos = 10% por minuto
-    # Se reduce si hay mucho pensamiento crítico (intentos de detención)
-    base_speed = 10
-    
-    log = []
-    
-    for minute in range(1, max_minutes + 1):
-        # ========== FASE 1: PROPAGACIÓN DEL MENSAJE ==========
-        new_informed = set()
-        
-        for node in informed_nodes:
-            if node in G:
-                neighbors = list(G.neighbors(node))
-                for neighbor in neighbors:
-                    if neighbor not in informed_nodes:
-                        # FÓRMULA CORE: Probabilidad de transmisión exitosa
-                        # P_tx = (α × (1 + β)) / (1 + γ)
-                        # donde γ = (1 - γ_inv), entonces:
-                        # P_tx = (α × (1 + β)) / (2 - γ_inv)
-                        
-                        gamma = 1 - gamma_inv  # Convertir "reducción de ruido" a "nivel de ruido"
-                        prob_transmission = (alpha * (1 + beta)) / (1 + gamma)
-                        
-                        if random.random() < prob_transmission:
-                            new_informed.add(neighbor)
-                            
-                            if neighbor == "SANTIAGO NASAR":
-                                santiago_alerted = True
-                                time_alerted = minute
-                                log.append(f"✅ MIN {minute}: ¡SANTIAGO ALERTADO por {node}!")
-                                return True, time_alerted, minute, log
-        
-        informed_nodes.update(new_informed)
-        
-        if new_informed:
-            log.append(f"📢 MIN {minute}: Mensaje propagado a {len(new_informed)} nuevos nodos")
-        else:
-            log.append(f"🚫 MIN {minute}: Mensaje estancado (sin nuevas propagaciones)")
-        
-        # ========== FASE 2: AVANCE DE LOS GEMELOS ==========
-        # El pensamiento crítico genera intentos de detención que los ralentizan
-        intervention_factor = alpha * 5  # Máximo 5% de reducción
-        effective_speed = max(base_speed - intervention_factor, 5)  # Mínimo 5% para que no se detengan totalmente
-        
-        vicario_progress += effective_speed
-        
-        log.append(f"⚔️  MIN {minute}: Gemelos al {vicario_progress:.1f}% del objetivo")
-        
-        if vicario_progress >= 100:
-            log.append(f"💀 MIN {minute}: GEMELOS EJECUTAN EL ALGORITMO DE VENGANZA")
-            return False, time_alerted, minute, log
-    
-    log.append(f"⏱️ TIMEOUT: Simulación terminada sin resolución")
-    return False, time_alerted, max_minutes, log
-
-def run_monte_carlo(alpha, beta, gamma_inv, n_sims):
-    """Ejecuta múltiples simulaciones y agrega resultados"""
-    successes = 0
-    failure_causes = defaultdict(int)
-    alert_times = []
-    attack_times = []
-    
-    for _ in range(n_sims):
-        success, t_alert, t_attack, log = simulate_single_run(alpha, beta, gamma_inv)
-        
-        if success:
-            successes += 1
-            alert_times.append(t_alert)
-        else:
-            attack_times.append(t_attack)
-            
-            # Clasificar causa de fallo
-            if "estancado" in " ".join(log):
-                failure_causes["Fragmentación de red"] += 1
-            elif t_attack <= 8:
-                failure_causes["Propagación demasiado lenta"] += 1
-            else:
-                failure_causes["Ruido/Interferencia"] += 1
-    
-    return {
-        "success_rate": (successes / n_sims) * 100,
-        "successes": successes,
-        "failures": n_sims - successes,
-        "avg_alert_time": np.mean(alert_times) if alert_times else None,
-        "avg_attack_time": np.mean(attack_times) if attack_times else None,
-        "failure_causes": dict(failure_causes)
-    }
+# El motor vive en modelo.py para poder probarlo sin levantar Streamlit.
+# Ver test_modelo.py.
 
 # ============================================================================
 # VISUALIZACIÓN DE RED
@@ -467,7 +368,7 @@ def visualize_network(G):
 # Botón principal con mejor diseño
 st.markdown("<div style='margin: 2rem 0;'></div>", unsafe_allow_html=True)
 
-if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", use_container_width=True, type="primary"):
+if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", width="stretch", type="primary"):
     # Progress bar moderno
     progress_bar = st.progress(0)
     status_text = st.empty()
@@ -476,7 +377,9 @@ if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", use_container_width=True, 
     progress_bar.progress(10)
     
     # Ejecutar Monte Carlo
-    results = run_monte_carlo(critical_thinking, adaptability, problem_solving, num_simulations)
+    results = run_monte_carlo(
+        critical_thinking, adaptability, problem_solving, num_simulations, seed=semilla
+    )
     
     progress_bar.progress(100)
     status_text.text("✅ Simulación completada!")
@@ -502,8 +405,8 @@ if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", use_container_width=True, 
     """.format(num_simulations=num_simulations), unsafe_allow_html=True)
     
     # Métricas principales con mejor diseño
-    col1, col2, col3 = st.columns(3)
-    
+    col1, col2, col3, col4 = st.columns(4)
+
     with col1:
         success_rate = results["success_rate"]
         delta_color = "normal" if success_rate > 50 else "inverse"
@@ -534,6 +437,14 @@ if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", use_container_width=True, 
             )
         else:
             st.metric("⚔️ TIEMPO PROMEDIO DE ATAQUE", "N/A", help="Sin ataques registrados")
+
+    with col4:
+        st.metric(
+            "🌀 SANTIAGO DESINFORMADO",
+            f"{results['misinformed_rate']:.1f}%",
+            help="Porcentaje de simulaciones en que a Santiago le llegó primero el rumor "
+                 "falso y se quedó tranquilo. Suba el Pensamiento Crítico para reducirlo.",
+        )
     
     # ========== VEREDICTO CON COMPONENTES NATIVOS ==========
     st.markdown("---")
@@ -587,16 +498,17 @@ if st.button("🚀 EJECUTAR SIMULACIÓN MONTE CARLO", use_container_width=True, 
                 for causa, freq in results["failure_causes"].items()
             ]).sort_values("Frecuencia", ascending=False)
             
-            st.dataframe(failure_df, use_container_width=True, hide_index=True)
+            st.dataframe(failure_df, width="stretch", hide_index=True)
             
-            st.info("""
+            st.info(f"""
 **💡 Interpretación:**
 
-• **Fragmentación de red:** El mensaje no encuentra rutas para propagarse → ↑ Adaptabilidad  
-• **Saturación de información:** Demasiado "ruido" impide procesar datos críticos → ↑ Resolución de Problemas  
-• **Baja transmisión:** Las personas ignoran o no comparten la advertencia → ↑ Pensamiento Crítico  
-• **Propagación lenta:** El mensaje avanza pero no lo suficientemente rápido → ↑ Pensamiento Crítico  
-• **Ruido/Interferencia:** El mensaje se pierde en el caos social → ↑ Resolución de Problemas
+• **{CAUSA_DESINFORMADO}:** llegó primero el rumor y nadie lo verificó → ↑ Pensamiento Crítico
+• **{CAUSA_RUMOR_GANA}:** el rumor ocupó la red antes que la advertencia → ↑ Pensamiento Crítico
+• **{CAUSA_FRAGMENTADA}:** la advertencia nunca encontró una ruta hasta Santiago → ↑ Adaptabilidad
+• **{CAUSA_LENTO}:** la advertencia iba en camino, pero se acabó el tiempo → ↑ Filtrado de Ruido
+
+Las cuatro causas son alcanzables: pruebe a mover un solo control y vea cuál cambia.
             """)
     
     with tab2:
@@ -664,7 +576,7 @@ de muchas simulaciones, no una sola.
             "Resolución de Problemas": [f"{problem_solving:.2f}", "0.08"]
         })
         
-        st.dataframe(comparison_df, use_container_width=True, hide_index=True)
+        st.dataframe(comparison_df, width="stretch", hide_index=True)
         
         improvement = results['success_rate'] - historical_results['success_rate']
         
@@ -811,41 +723,49 @@ with st.expander("🔬 Detalles Técnicos (Para Curiosos)"):
     
     st.markdown("""
     ### 🧮 La Matemática Detrás de la Simulación
-    
-    **Fórmula que calcula si un mensaje se transmite:**
-    
-    $$P_{transmisión} = \\frac{Pensamiento\\:Crítico \\times (1 + Adaptabilidad)}{1 + Ruido}$$
-    
-    **Traducción a español simple:**
-    - Si la gente tiene **pensamiento crítico alto**, creen el mensaje
-    - Si hay **adaptabilidad alta**, hay más rutas para transmitir
-    - Si hay **ruido alto** (mucha distracción), la probabilidad baja
-    
-    **Ejemplo con números reales del libro:**
-    - Pensamiento Crítico (α) = 0.08 
-    - Adaptabilidad (β) = 0.15
-    - Reducción de Ruido (γ⁻¹) = 0.08
-    
-    **Cálculo paso a paso:**
-    1. γ = 1 - γ⁻¹ = 1 - 0.08 = 0.92 (nivel de ruido)
-    2. Numerador = α × (1 + β) = 0.08 × 1.15 = 0.092
-    3. Denominador = 1 + γ = 1 + 0.92 = 1.92
-    4. **Probabilidad por transmisión individual** = 0.092 / 1.92 ≈ **4.8%**
-    
-    **¿Por qué la tasa de éxito final es ~15-20%?**
-    
-    Porque en la simulación hay **múltiples intentos** durante 15 minutos:
-    - Cada minuto, todos los nodos informados intentan transmitir a sus vecinos
-    - Con β=0.15, hay ~10-15 conexiones activas en la red
-    - Aunque cada intento tiene solo 4.8% de éxito, la **probabilidad acumulada** sube
-    
-    **Analogía:** Es como lanzar una moneda trucada (4.8% de cara) 15 veces. 
-    La probabilidad de obtener al menos una cara es mucho mayor que 4.8%.
-    
-    Por eso Santiago muere en ~80-85% de los casos con esos valores históricos.
-    
+
+    Por la red circulan **dos mensajes**: la advertencia verdadera y un rumor falso
+    ("son habladas de borracho, ya le avisaron"). Cada minuto, cada persona que cree
+    algo intenta pasárselo a sus vecinos.
+
+    **Probabilidad de que un mensaje salte de una persona a otra:**
+
+    $$P_{transmisión} = \\frac{0.15 \\times (1 + Adaptabilidad)}{1 + Ruido}$$
+
+    Fíjese en lo que **no** está en esa fórmula: el pensamiento crítico. Esa variable
+    no decide cuán rápido circula un mensaje, sino **cuál de los dos se cree**:
+
+    - Con probabilidad α, la persona **verifica**: acepta la advertencia y descarta el rumor.
+    - Con probabilidad 1 − α, se queda con **lo primero que oyó**, sea verdad o mentira.
+
+    Y si a Santiago le llega primero el rumor, queda tranquilo: una advertencia posterior
+    solo le hace efecto si esta vez verifica.
+
+    **Los gemelos avanzan a velocidad constante**, 10 % por minuto: el plazo son siempre
+    10 minutos. No depende de ninguna de las tres variables.
+
     ---
-    
+
+    ### ⚠️ Qué cambió respecto de la versión 2.0, y por qué
+
+    Esta app se auditó en noviembre de 2026 y tenía tres defectos que vale la pena
+    nombrar, porque ilustran justamente lo que la charla enseña:
+
+    1. **Solo existía un mensaje, y siempre era verdadero.** Así que "ser crítico" y
+       "creer todo" producían el mismo resultado. El pensamiento crítico no estaba
+       modelado: estaba decorado.
+    2. **α entraba dos veces:** aceleraba la advertencia y además frenaba a los gemelos.
+       Por encima de 0,67 los gemelos ya no alcanzaban a llegar dentro de la ventana y
+       el plazo desaparecía. Con α ≥ 0,6 Santiago se salvaba siempre, aunque las otras
+       dos variables estuvieran en cero.
+    3. **Cuatro de las cinco causas de fallo documentadas eran inalcanzables.** El 100 %
+       de los fallos se reportaba como "fragmentación de red".
+
+    Un modelo útil no es un modelo correcto. Saber dónde falla el propio es la
+    competencia que la charla quiere practicar.
+
+    ---
+
     ### 🎲 ¿Qué es "Monte Carlo"?
     
     Es un método de la estadística que consiste en:
@@ -865,11 +785,19 @@ with st.expander("🔬 Detalles Técnicos (Para Curiosos)"):
 # ============================================================================
 
 st.markdown("---")
-st.markdown("""
+_footer_uni = (
+    f"<p><b>Para:</b> Estudiantes de la {UNI['nombre']}, {UNI['lugar']}</p>"
+    f"<p>{UNI['contexto']} | 📚 Uso académico | 🔓 Código abierto</p>"
+    if UNI["nombre"]
+    else "<p>📚 Uso académico | 🔓 Código abierto</p>"
+)
+st.markdown(
+    """
 <div style='text-align: center; color: #666; font-size: 0.9em;'>
     <p>🛡️ <b>Operación Crónica</b> - Simulación educativa basada en "Crónica de una muerte anunciada" de Gabriel García Márquez</p>
-    <p><b>Presentado por:</b> Dr. Germán Gómez Vargas, Universidad del Desarrollo (Chile)</p>
-    <p><b>Para:</b> Estudiantes de la Corporación Universitaria San José de Sucre, Sincelejo, Colombia</p>
-    <p>Visita Académica UAJS 2025 | 📚 Uso académico | 🔓 Código abierto</p>
-</div>
-""", unsafe_allow_html=True)
+    <p><b>Presentado por:</b> Dr. Germán Gómez Vargas, Instituto de Data Science, Universidad del Desarrollo (Chile)</p>
+    """
+    + _footer_uni
+    + "</div>",
+    unsafe_allow_html=True,
+)
