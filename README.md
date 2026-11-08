@@ -6,9 +6,9 @@ Una simulación interactiva de Monte Carlo basada en "Crónica de una muerte anu
 ![Python](https://img.shields.io/badge/python-3.8+-green.svg)
 ![Streamlit](https://img.shields.io/badge/streamlit-1.28+-red.svg)
 
-**Presentado por:** Dr. Germán Gómez Salinas, Universidad del Desarrollo (Chile)  
-**Para:** Estudiantes de la Corporación Universitaria San José de Sucre, Sincelejo, Colombia  
-**Contexto:** Visita Académica UAJS 2025
+**Presentado por:** Dr. Germán Gómez Vargas, Instituto de Data Science, Universidad del Desarrollo (Chile)  
+**Para:** Estudiantes universitarios de Colombia  
+**Contexto:** la institución anfitriona se elige con un parámetro de URL, por ejemplo `?uni=americana` o `?uni=uajs`
 
 ## 🎯 ¿Para Quién es Esta Herramienta?
 
@@ -50,7 +50,7 @@ Esta aplicación demuestra que el "destino inevitable" de la novela de García M
 
 1. **Clonar el repositorio:**
 ```bash
-git clone https://github.com/TU_USUARIO/operacion-cronica.git
+git clone https://github.com/gear-go/operacion-cronica.git
 cd operacion-cronica
 ```
 
@@ -94,7 +94,7 @@ git init
 git add .
 git commit -m "Initial commit: Operación Crónica"
 git branch -M main
-git remote add origin https://github.com/TU_USUARIO/TU_REPO.git
+git remote add origin https://github.com/gear-go/operacion-cronica.git
 git push -u origin main
 ```
 
@@ -119,30 +119,42 @@ https://USUARIO-REPO-HASH.streamlit.app
 ### Controles Principales
 
 1. **🧠 Pensamiento Crítico (α):**
-   - Controla qué tan seriamente la gente evalúa la información
-   - Valor del libro: 0.2 (muchos descartaron el rumor como "habladas")
+   - Qué proporción de la gente **verifica antes de repetir**. Quien verifica se queda
+     con la advertencia y descarta el rumor; quien no, cree lo primero que oyó.
+   - No acelera la transmisión: decide **cuál de los dos mensajes** se cree.
+   - Valor del libro: **0.08** (casi nadie verificó: "son habladas de borracho")
 
 2. **🌐 Adaptabilidad (β):**
-   - Define cuántas rutas alternativas puede crear la red
-   - Valor del libro: 0.3 (pocas conexiones redundantes)
+   - Cuántas rutas alternativas existen en la red
+   - Valor del libro: **0.15** (pocas conexiones redundantes)
 
-3. **📢 Resolución de Problemas (γ⁻¹):**
-   - Capacidad para filtrar ruido y priorizar información crítica
-   - Valor del libro: 0.1 (ruido extremo: Obispo, resaca, puerto)
+3. **📢 Filtrado de Ruido (γ⁻¹):**
+   - Capacidad de la comunidad para enfocarse pese al ruido
+   - Valor del libro: **0.08** (ruido extremo: el obispo, la resaca, el puerto)
 
 ### Experimentos Sugeridos
 
-**Experimento 1: Replicar el Libro**
-- α = 0.2, β = 0.3, γ⁻¹ = 0.1
-- Resultado esperado: ~10-20% de éxito (Santiago muere)
+Cifras medidas con 4.000 simulaciones por escenario (`seed=99`).
 
-**Experimento 2: Pensamiento Crítico Solo**
-- α = 0.8, β = 0.3, γ⁻¹ = 0.1
-- ¿Es suficiente el pensamiento crítico para salvar a Santiago?
+**Experimento 1: replicar el libro**
+- α = 0.08, β = 0.15, γ⁻¹ = 0.08
+- Resultado: **~18 % de éxito**. Santiago muere en ~82 % de los casos, y en ~51 %
+  le llega primero el rumor.
 
-**Experimento 3: Optimización Completa**
-- α = 0.8, β = 0.8, γ⁻¹ = 0.8
-- Resultado esperado: >90% de éxito
+**Experimento 2: ¿basta el pensamiento crítico?**
+- α = 0.80, β = 0.15, γ⁻¹ = 0.08
+- Resultado: **~25 % de éxito**. Sube apenas siete puntos: verificar no sirve de
+  nada si el mensaje no tiene por dónde llegar.
+
+**Experimento 3: las tres variables altas**
+- α = 0.80, β = 0.80, γ⁻¹ = 0.80
+- Resultado: **~90 % de éxito**.
+
+**Experimento 4: una red excelente sin verificación** ⭐
+- α = 0.00, β = 0.80, γ⁻¹ = 0.80
+- Resultado: **~43 % de éxito, pero ~57 % de desinformación**. Una red rápida y
+  bien conectada propaga la mentira con la misma eficiencia que la verdad. Es el
+  experimento más interesante para discutir en clase.
 
 **Experimento 4: Un Solo Parámetro**
 - Fija dos parámetros en 0.2, varía el tercero
@@ -245,7 +257,7 @@ Este proyecto está bajo la Licencia MIT. Ver `LICENSE` para más detalles.
 
 Para preguntas, sugerencias o colaboraciones:
 
-- **Email**: [tu-email@ejemplo.com]
+- **Email**: gagomez@udd.cl
 - **Twitter/X**: [@tu_usuario]
 - **LinkedIn**: [tu-perfil]
 
@@ -257,3 +269,38 @@ Para preguntas, sugerencias o colaboraciones:
   <br>
   <p><b>¿Podrás cambiar el final de la historia?</b></p>
 </div>
+
+---
+
+## 🔄 Cambios de la v3.0 (noviembre de 2026)
+
+La v2.0 se auditó antes de reutilizarla en una charla nueva y tenía tres defectos
+que vale la pena dejar escritos, porque son justamente los que la charla enseña
+a detectar.
+
+**1. El pensamiento crítico estaba decorado, no modelado.**
+Por la red circulaba un solo mensaje y siempre era verdadero, así que "ser
+crítico" y "creer todo" producían el mismo resultado. Ahora circulan dos
+mensajes —la advertencia y un rumor falso— y α decide cuál se cree.
+
+**2. α entraba dos veces en el modelo.**
+Aceleraba la advertencia y además frenaba a los gemelos. Por encima de α = 0,67
+los gemelos ya no alcanzaban a llegar dentro de la ventana de 15 minutos y el
+plazo desaparecía: con α ≥ 0,6 Santiago se salvaba siempre, aunque la
+adaptabilidad y el filtrado de ruido estuvieran en cero. Ahora los gemelos
+avanzan a velocidad constante y el plazo son siempre 10 minutos.
+
+**3. Cuatro de las cinco causas de fallo eran inalcanzables.**
+La rama "propagación demasiado lenta" exigía un ataque antes del minuto 8, algo
+imposible porque la velocidad máxima era de 10 % por minuto. El 100 % de los
+fallos se reportaba como "fragmentación de red". Ahora son cuatro causas, todas
+alcanzables, deducidas del estado final de la red.
+
+**Además:** dependencias con versión fija, `use_container_width` reemplazado por
+`width` (estaba deprecado), institución anfitriona configurable por parámetro de
+URL, modo demo con semilla fija para que la cifra proyectada coincida con la
+diapositiva, y una batería de pruebas en `test_modelo.py`.
+
+```bash
+python -m pytest test_modelo.py -q   # o: python test_modelo.py
+```
