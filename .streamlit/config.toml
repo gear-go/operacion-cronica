@@ -1,11 +1,41 @@
 [theme]
-primaryColor = "#00FFFF"
-backgroundColor = "#0d1117"
-secondaryBackgroundColor = "#161b22"
-textColor = "#c9d1d9"
-font = "monospace"
+# Identidad del Instituto de Data Science UDD: el azul institucional sale del
+# propio logo. Papel, tinta y tipografías son las mismas de la presentación de
+# la charla, para que pasar de las diapositivas a la app no se sienta como
+# cambiar de programa.
+base = "light"
+primaryColor = "#004A87"
+backgroundColor = "#F7F4ED"
+secondaryBackgroundColor = "#EAE5D9"
+textColor = "#10263B"
+linkColor = "#004A87"
+borderColor = "#D3D7DC"
+font = "IBM Plex Sans"
+headingFont = "Source Serif 4"
+headingFontWeights = [600, 600, 600, 600, 600, 600]
+baseRadius = "0.4rem"
+showWidgetBorder = true
+
+# Las fuentes se sirven desde la propia app (static/fonts), no desde Google
+# Fonts: así la charla se ve igual aunque la red del auditorio bloquee algo.
+# Ambas tienen licencia SIL Open Font License; ver static/fonts/OFL-*.txt.
+[[theme.fontFaces]]
+family = "IBM Plex Sans"
+url = "app/static/fonts/ibm-plex-sans.woff2"
+weight = "400 600"
+style = "normal"
+
+[[theme.fontFaces]]
+family = "Source Serif 4"
+url = "app/static/fonts/source-serif-4.woff2"
+weight = "400 700"
+style = "normal"
+
+[client]
+toolbarMode = "minimal"
 
 [server]
+enableStaticServing = true
 headless = true
 port = 8501
 enableCORS = false

@@ -88,6 +88,28 @@ def test_la_transmision_no_depende_de_alpha():
     assert prob_transmision(0.3, 0.9) > prob_transmision(0.3, 0.1)
 
 
+def test_cada_manana_queda_registrada_y_cuadra_con_el_total():
+    """La grilla de 100 mañanas de la app se dibuja con esta lista."""
+    r = run_monte_carlo(*LIBRO, 100, seed=2026)
+    assert len(r["mananas"]) == 100
+    assert r["mananas"].count("salvado") == r["successes"]
+    assert set(r["mananas"]) <= {"salvado", "rumor", "sin_aviso"}
+
+
+def test_una_manana_es_la_misma_que_se_conto_en_el_total():
+    """La mañana que la app muestra en detalle debe ser la misma del conteo."""
+    r = run_monte_carlo(*LIBRO, 100, seed=2026)
+    for numero in (1, 2, 37, 100):
+        ok, _, _, _, diag = modelo.una_manana(*LIBRO, numero, seed=2026)
+        esperado = r["mananas"][numero - 1]
+        assert (esperado == "salvado") == ok, (numero, esperado, ok)
+
+
+def test_semilla_de_la_demo_da_la_cifra_de_la_charla():
+    """La app usa la semilla 2026 por defecto: el libro debe dar 17 de 100."""
+    assert run_monte_carlo(*LIBRO, 100, seed=2026)["successes"] == 17
+
+
 if __name__ == "__main__":
     fallos = 0
     for nombre, fn in sorted(globals().items()):

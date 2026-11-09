@@ -304,3 +304,29 @@ diapositiva, y una batería de pruebas en `test_modelo.py`.
 ```bash
 python -m pytest test_modelo.py -q   # o: python test_modelo.py
 ```
+
+---
+
+## 🎨 Cambios de la v3.1 (noviembre de 2026): identidad UDD y experiencia de uso
+
+- **Identidad del Instituto de Data Science UDD.** Logo de los 10 años, azul
+  institucional `#004A87` y las mismas tipografías de la presentación de la charla
+  (Source Serif 4 e IBM Plex Sans), para que pasar de las diapositivas a la app
+  no se sienta como cambiar de programa.
+- **Fuentes servidas desde la propia app** (`static/fonts`), no desde Google
+  Fonts: se ve igual aunque la red del auditorio bloquee algo. Ambas tienen
+  licencia SIL Open Font License (`static/fonts/OFL-*.txt`).
+- **Controles en la página, no en la barra lateral.** En el celular, la barra
+  lateral quedaba escondida detrás de un botón y los estudiantes que escaneaban
+  el QR no encontraban los controles.
+- **Sin botón "Ejecutar".** Cada simulación de 100 mañanas tarda unos 5 ms, así
+  que el resultado se recalcula apenas se mueve un control.
+- **Cien mañanas a la vista.** Una grilla de 100 cuadros, uno por mañana
+  simulada, coloreados según cómo terminó cada una.
+- **Una mañana, minuto a minuto.** La red dibujada con posiciones fijas (las de
+  la diapositiva «La red que falló»), mostrando quién creyó la advertencia y
+  quién el rumor, con el registro de lo que pasó en cada minuto.
+- **Semilla fija por defecto** (2026), elegida porque con los valores de la
+  novela da 17 de 100: la cifra de la presentación. El botón «Otras 100 mañanas»
+  cambia la muestra para mostrar que el azar importa.
+- Se quitan `matplotlib` y `pandas`, que ya no se usan.

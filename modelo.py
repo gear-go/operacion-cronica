@@ -52,49 +52,48 @@ CAUSA_RUMOR_GANA = "El rumor desplazó al aviso"
 CAUSA_LENTO = "Demasiado lento: el aviso venía en camino"
 
 
+POLICIA = "Leandro Pornoy (Policía)"
+CORONEL = "Coronel Lázaro Aponte"
+PADRE = "Padre Carmen Amador"
+CRISTO = "Cristo Bedoya"
+PLACIDA = "Plácida Linero (Madre)"
+VICTORIA = "Victoria Guzmán (Cocinera)"
+
+PERSONAS = [GEMELOS, CLOTILDE, POLICIA, CORONEL, PADRE, CRISTO, PLACIDA, VICTORIA, SANTIAGO]
+
+# Las rutas por las que, en la novela, podía viajar la advertencia.
+RUTAS_LIBRO = [
+    (GEMELOS, CLOTILDE),
+    (CLOTILDE, POLICIA),
+    (CLOTILDE, PADRE),
+    (CLOTILDE, CRISTO),
+    (POLICIA, CORONEL),
+    (PADRE, PLACIDA),
+    (CRISTO, SANTIAGO),
+    (PLACIDA, SANTIAGO),
+    (VICTORIA, SANTIAGO),
+]
+
+# Rutas que no existieron en la novela pero podrían haber existido. Cada una
+# aparece con probabilidad beta (adaptabilidad).
+RUTAS_ALTERNATIVAS = [
+    (CLOTILDE, SANTIAGO),
+    (POLICIA, CRISTO),
+    (CORONEL, PLACIDA),
+    (CORONEL, SANTIAGO),
+    (PADRE, CRISTO),
+    (VICTORIA, PLACIDA),
+]
+
+
 def create_network(beta, rng=random):
     """Construye el grafo social: rutas del libro + rutas alternativas."""
     G = nx.Graph()
-
-    nodes = [
-        GEMELOS,
-        CLOTILDE,
-        "Leandro Pornoy (Policía)",
-        "Coronel Lázaro Aponte",
-        "Padre Carmen Amador",
-        "Cristo Bedoya",
-        "Plácida Linero (Madre)",
-        "Victoria Guzmán (Cocinera)",
-        SANTIAGO,
-    ]
-    G.add_nodes_from(nodes)
-
-    base_edges = [
-        (GEMELOS, CLOTILDE),
-        (CLOTILDE, "Leandro Pornoy (Policía)"),
-        (CLOTILDE, "Padre Carmen Amador"),
-        (CLOTILDE, "Cristo Bedoya"),
-        ("Leandro Pornoy (Policía)", "Coronel Lázaro Aponte"),
-        ("Padre Carmen Amador", "Plácida Linero (Madre)"),
-        ("Cristo Bedoya", SANTIAGO),
-        ("Plácida Linero (Madre)", SANTIAGO),
-        ("Victoria Guzmán (Cocinera)", SANTIAGO),
-    ]
-    G.add_edges_from(base_edges)
-
-    # Rutas alternativas: se activan según la adaptabilidad del pueblo.
-    potential_edges = [
-        (CLOTILDE, SANTIAGO),
-        ("Leandro Pornoy (Policía)", "Cristo Bedoya"),
-        ("Coronel Lázaro Aponte", "Plácida Linero (Madre)"),
-        ("Coronel Lázaro Aponte", SANTIAGO),
-        ("Padre Carmen Amador", "Cristo Bedoya"),
-        ("Victoria Guzmán (Cocinera)", "Plácida Linero (Madre)"),
-    ]
-    for edge in potential_edges:
+    G.add_nodes_from(PERSONAS)
+    G.add_edges_from(RUTAS_LIBRO)
+    for edge in RUTAS_ALTERNATIVAS:
         if rng.random() < beta:
             G.add_edge(*edge)
-
     return G
 
 
@@ -129,7 +128,8 @@ def simulate_single_run(alpha, beta, gamma_inv, max_minutes=15, rng=random):
     creencia[CLOTILDE] = AVISO
 
     candidatos = [n for n in G.nodes if n not in (CLOTILDE, SANTIAGO, GEMELOS)]
-    for n in rng.sample(candidatos, k=min(SEMILLAS_RUMOR, len(candidatos))):
+    semillas = rng.sample(candidatos, k=min(SEMILLAS_RUMOR, len(candidatos)))
+    for n in semillas:
         creencia[n] = RUMOR
 
     p_tx = prob_transmision(beta, gamma_inv)
@@ -137,11 +137,15 @@ def simulate_single_run(alpha, beta, gamma_inv, max_minutes=15, rng=random):
     santiago_desinformado = False
     aviso_llego_a_vecino = False
     progreso = 0
-    log = []
+    log = [
+        f"🌅 MIN 0: {CLOTILDE} oye a los gemelos y cree la advertencia. "
+        f"{' y '.join(semillas)} amanecen creyendo el rumor."
+    ]
 
     for minute in range(1, max_minutes + 1):
         # ---------- Fase 1: propagación ----------
         nuevos = {}
+        marca = len(log)
         for nodo, mensaje in creencia.items():
             if mensaje is None or nodo == GEMELOS:
                 continue
@@ -163,9 +167,12 @@ def simulate_single_run(alpha, beta, gamma_inv, max_minutes=15, rng=random):
                             )
                             continue
                         log.append(f"✅ MIN {minute}: ¡SANTIAGO ALERTADO por {nodo}!")
+                        final = {**creencia, **nuevos, SANTIAGO: AVISO}
                         return True, minute, minute, log, {
                             "causa": None,
                             "santiago_desinformado": santiago_desinformado,
+                            "creencias": final,
+                            "red": G,
                         }
                     else:
                         creido = _recibe(RUMOR, alpha, rng)
@@ -181,14 +188,16 @@ def simulate_single_run(alpha, beta, gamma_inv, max_minutes=15, rng=random):
                     log.append(f"🔎 MIN {minute}: {vecino} verifica y descarta el rumor")
                     continue
                 nuevos[vecino] = creido
+                if creido == AVISO:
+                    log.append(f"📢 MIN {minute}: {vecino} cree la advertencia (se la dijo {nodo})")
+                else:
+                    log.append(f"🌀 MIN {minute}: {vecino} cree el rumor (se lo dijo {nodo})")
                 if creido == AVISO and SANTIAGO in G.neighbors(vecino):
                     aviso_llego_a_vecino = True
 
         creencia.update(nuevos)
 
-        if nuevos:
-            log.append(f"📢 MIN {minute}: el mensaje llega a {len(nuevos)} personas más")
-        else:
+        if len(log) == marca:
             log.append(f"🚫 MIN {minute}: nadie nuevo se entera")
 
         # ---------- Fase 2: avance de los gemelos ----------
@@ -198,16 +207,16 @@ def simulate_single_run(alpha, beta, gamma_inv, max_minutes=15, rng=random):
         if progreso >= 100:
             log.append(f"💀 MIN {minute}: los gemelos consuman la venganza")
             return False, -1, minute, log, _diagnostico(
-                creencia, santiago_desinformado, aviso_llego_a_vecino
+                creencia, santiago_desinformado, aviso_llego_a_vecino, G
             )
 
     log.append("⏱️ Fin de la ventana de simulación")
     return False, -1, max_minutes, log, _diagnostico(
-        creencia, santiago_desinformado, aviso_llego_a_vecino
+        creencia, santiago_desinformado, aviso_llego_a_vecino, G
     )
 
 
-def _diagnostico(creencia, santiago_desinformado, aviso_llego_a_vecino):
+def _diagnostico(creencia, santiago_desinformado, aviso_llego_a_vecino, red=None):
     """Deduce por qué falló, a partir del estado final de la red."""
     con_aviso = sum(1 for v in creencia.values() if v == AVISO)
     con_rumor = sum(1 for v in creencia.values() if v == RUMOR)
@@ -224,6 +233,8 @@ def _diagnostico(creencia, santiago_desinformado, aviso_llego_a_vecino):
         "santiago_desinformado": santiago_desinformado,
         "con_aviso": con_aviso,
         "con_rumor": con_rumor,
+        "creencias": dict(creencia),
+        "red": red,
     }
 
 
@@ -240,6 +251,7 @@ def run_monte_carlo(alpha, beta, gamma_inv, n_sims, seed=None):
     failure_causes = defaultdict(int)
     alert_times = []
     attack_times = []
+    mananas = []  # cómo terminó cada corrida, en orden: "salvado", "rumor" o "sin_aviso"
 
     for _ in range(n_sims):
         ok, t_alert, t_attack, _log, diag = simulate_single_run(
@@ -248,9 +260,14 @@ def run_monte_carlo(alpha, beta, gamma_inv, n_sims, seed=None):
         if ok:
             successes += 1
             alert_times.append(t_alert)
+            mananas.append("salvado")
         else:
             attack_times.append(t_attack)
             failure_causes[diag["causa"]] += 1
+            if diag["causa"] in (CAUSA_DESINFORMADO, CAUSA_RUMOR_GANA):
+                mananas.append("rumor")
+            else:
+                mananas.append("sin_aviso")
         if diag["santiago_desinformado"]:
             desinformados += 1
 
@@ -262,4 +279,18 @@ def run_monte_carlo(alpha, beta, gamma_inv, n_sims, seed=None):
         "avg_alert_time": float(np.mean(alert_times)) if alert_times else None,
         "avg_attack_time": float(np.mean(attack_times)) if attack_times else None,
         "failure_causes": dict(failure_causes),
+        "mananas": mananas,
     }
+
+
+def una_manana(alpha, beta, gamma_inv, numero, seed):
+    """Reproduce la mañana número `numero` (desde 1) de run_monte_carlo(seed=seed).
+
+    Consume el generador aleatorio exactamente igual que run_monte_carlo, así
+    que la mañana que se muestra en detalle es la misma que se contó en el total.
+    """
+    rng = random.Random(seed)
+    resultado = None
+    for _ in range(numero):
+        resultado = simulate_single_run(alpha, beta, gamma_inv, rng=rng)
+    return resultado
